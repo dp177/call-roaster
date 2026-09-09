@@ -1,0 +1,14 @@
+{
+  "name": "Call Roster",
+  "short_name": "Call Roster",
+  "description": "Shared patient procedure and call tracker for the clinic team.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F1F4F3",
+  "theme_color": "#0C857A",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

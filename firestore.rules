@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Call Roster — security rules
+//
+// How access works:
+//   • People sign in with Google (no passwords to manage).
+//   • Only emails on the access list can read/write patient data.
+//   • Only the OWNER below can change the access list — he does it
+//     from the "Who can access" panel inside the app, never here.
+//
+// Paste this whole file into Firestore → Rules and press Publish.
+// The owner email must match ADMIN_EMAIL in index.html.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+    function userEmail() {
+      return request.auth.token.email.lower();
+    }
+    function isOwner() {
+      return signedIn() && userEmail() == 'vrajkundariya9876@gmail.com';
+    }
+    function isAllowed() {
+      return isOwner() || (
+        signedIn()
+        && exists(/databases/$(database)/documents/access/allowlist)
+        && userEmail() in get(/databases/$(database)/documents/access/allowlist).data.emails
+      );
+    }
+
+    // The access list: readable by approved staff, editable only by the owner.
+    match /access/allowlist {
+      allow read: if isAllowed();
+      allow write: if isOwner();
+    }
+
+    // Patient records and shared settings: approved staff only.
+    match /patients/{patientId} {
+      allow read, write: if isAllowed();
+    }
+    match /config/{settingId} {
+      allow read, write: if isAllowed();
+    }
+  }
+}
